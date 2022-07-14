@@ -1,0 +1,21 @@
+[tool.poetry]
+name = "jopen"
+version = "0.1.0"
+description = "jira open; git check; git bind jira"
+authors = ["YunpengZhan <136688059@qq.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.7"
+urwid = "^2.1.2"
+
+[tool.poetry.dev-dependencies]
+black = "^22.6.0"
+flake8 = "^4.0.1"
+mypy = "^0.961"
+isort = "^5.10.1"
+yapf = "^0.32.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
