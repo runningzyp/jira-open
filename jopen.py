@@ -23,9 +23,7 @@ def get_jira_info() -> str:
     headers = {"Accept": "application/json"}
     auth = HTTPBasicAuth(jira_user, jira_token)
 
-    query = {
-        "jql": """status in (Approved, "Code Review", "CODE REVIEW", Draft, "In Progress", "IN PROGRESS", "In Review", "IN REVIEW", Open, OPEN, Published, QA, "To Do") AND assignee in (currentUser()) ORDER BY created DESC"""
-    }
+    query = {"jql": """assignee in (currentUser()) ORDER BY created DESC"""}
 
     response = requests.request(
         "GET",
@@ -40,14 +38,14 @@ def get_jira_info() -> str:
             issue["key"]: {
                 "title": issue["fields"]["summary"],
                 "description": issue["fields"]["description"],
-            }
-            for issue in issues
+            } for issue in issues
         }
         return issue_map
     return {}
 
 
 class ListItem(u.WidgetWrap):
+
     def __init__(self, branch):
 
         self.content = branch
@@ -66,6 +64,7 @@ class ListItem(u.WidgetWrap):
 
 
 class ListView(u.WidgetWrap):
+
     def __init__(self):
 
         u.register_signal(self.__class__, ["show_details"])
@@ -104,18 +103,21 @@ class ListView(u.WidgetWrap):
 
 
 class DetailView(u.WidgetWrap):
+
     def __init__(self):
         t = u.Text("")
         u.WidgetWrap.__init__(self, t)
 
     def set_branch(self, c):
-        detail = c["detail"]
-        content = detail["description"].replace("\n", "\n" + " " * 10)
-        s = f"Title   : {detail['title']}\nContent : {content}"
+        title = c["detail"]['title']
+        description = c["detail"]['description']
+        description = description.replace("\n", "\n" + " " * 10) if description else ""
+        s = f"Title   : {title}\nContent : {description}"
         self._w.set_text(s)
 
 
 class OverlayView(u.WidgetWrap):
+
     def __init__(self):
         t = u.Text("")
         u.WidgetWrap.__init__(self, t)
@@ -126,6 +128,7 @@ class OverlayView(u.WidgetWrap):
 
 
 class App(object):
+
     def unhandled_input(self, key):
         walker = self.list_view.walker
         if key in ("enter",):
@@ -184,19 +187,18 @@ class App(object):
         c_details = u.LineBox(f2, title="Branch Details")
         c_overlay = u.LineBox(f3, title="Error")
 
-        columns = u.Columns(
-            [
-                ("weight", 30, c_list),
-                ("weight", 70, c_details),
-            ]
-        )
+        columns = u.Columns([
+            ("weight", 30, c_list),
+            ("weight", 70, c_details),
+        ])
 
         self.frame = u.AttrMap(u.Frame(body=columns, footer=footer), "bg")
         self.overlay = u.Overlay(c_overlay, self.frame, "center", 50, "middle", 10)
 
-        self.loop = u.MainLoop(
-            self.frame, self.palette, unhandled_input=self.unhandled_input, pop_ups=True
-        )
+        self.loop = u.MainLoop(self.frame,
+                               self.palette,
+                               unhandled_input=self.unhandled_input,
+                               pop_ups=True)
 
     def toggle_overlay(self):
         if self.loop.widget == self.frame:
@@ -214,14 +216,13 @@ class App(object):
 
     def update_data(self):
         branches = (
-            subprocess.check_output(show_branches_CMD).decode("utf-8").split("\n")
-        )
+            subprocess.check_output(show_branches_CMD).decode("utf-8").split("\n"))
         l = {branch: {"title": "", "description": ""} for branch in branches}
         issues = get_jira_info()
         for issue, content in issues.items():
             for branch in branches:
                 if issue in branch:
-                    l[branch] = content
+                    l[branch].update(content)
                     break
         l = [{"name": k, "detail": v} for k, v in l.items()]
         self.list_view.set_data(l)
