@@ -1,9 +1,12 @@
 [tool.poetry]
-name = "jopen"
+name = "jira-open"
 version = "0.1.1"
 description = "jira open; git check; git bind jira"
 authors = ["YunpengZhan <136688059@qq.com>"]
 license = "MIT"
+packages = [
+    { include = "*.py" },
+]
 
 [tool.poetry.dependencies]
 python = "^3.7"

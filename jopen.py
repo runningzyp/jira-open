@@ -1,5 +1,4 @@
 import urwid as u
-from pop_up import ThingWithAPopUp
 import subprocess
 import requests
 import base64
